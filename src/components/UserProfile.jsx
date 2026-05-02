@@ -1,14 +1,23 @@
 import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { AiOutlineUser, AiOutlineLogout } from 'react-icons/ai';
 import './UserProfile.css';
 
 function UserProfile() {
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    const result = await logout();
-    if (result.success) {
-      // User will be logged out automatically via AuthContext
+    try {
+      const result = await logout();
+      console.log('Logout result:', result);
+      if (result.success) {
+        navigate('/');
+      } else {
+        console.error('Logout failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
