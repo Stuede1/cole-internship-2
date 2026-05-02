@@ -3,6 +3,7 @@ import TopNavbar from './TopNavbar.jsx';
 import './ForYou.css';
 
 function ForYou() {
+  //for you page
   return (
     <div className="for-you">
       <Sidebar />
