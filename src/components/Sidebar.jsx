@@ -1,20 +1,29 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
-import { BsBook, BsBookmark, BsGear, BsQuestionCircle, BsBoxArrowRight } from 'react-icons/bs';
+import { BsBook, BsBookmark, BsGear, BsQuestionCircle, BsBoxArrowRight, BsHouse } from 'react-icons/bs';
+import { useAuth } from './AuthContext';
 import './Sidebar.css';
 
 function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navItems = [
-    { path: '/for-you', label: 'For you', icon: null },
+    { path: '/for-you', label: 'For you', icon: <BsHouse /> },
     { path: '/my-library', label: 'My Library', icon: <BsBook /> },
     { path: '/highlights', label: 'Highlights', icon: <BsBookmark /> },
     { path: '/search', label: 'Search', icon: <AiOutlineSearch /> },
     { path: '/settings', label: 'Settings', icon: <BsGear /> },
     { path: '/help', label: 'Help & Support', icon: <BsQuestionCircle /> },
-    { path: '/logout', label: 'Logout', icon: <BsBoxArrowRight /> },
   ];
+
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      navigate('/');
+    }
+  };
 
   return (
     <aside className="sidebar">
@@ -38,6 +47,13 @@ function Sidebar() {
             <span className="sidebar__nav-label">{item.label}</span>
           </Link>
         ))}
+        <button
+          className="sidebar__nav-item"
+          onClick={handleLogout}
+        >
+          <span className="sidebar__nav-icon"><BsBoxArrowRight /></span>
+          <span className="sidebar__nav-label">Logout</span>
+        </button>
       </nav>
     </aside>
   );

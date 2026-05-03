@@ -69,6 +69,10 @@
   font-weight: 400;
   transition: background-color 200ms, color 200ms;
   cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
 }
 
 .sidebar__nav-item:hover {
