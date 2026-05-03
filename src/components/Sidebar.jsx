@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
-import { BsBook, BsBookmark, BsGear, BsQuestionCircle, BsBoxArrowRight } from 'react-icons/bs';
+import { BsBook, BsBookmark, BsGear, BsQuestionCircle, BsBoxArrowRight, BsHouse } from 'react-icons/bs';
 import { useAuth } from './AuthContext';
 import './Sidebar.css';
 
@@ -10,7 +10,7 @@ function Sidebar() {
   const { logout } = useAuth();
 
   const navItems = [
-    { path: '/for-you', label: 'For you', icon: null },
+    { path: '/for-you', label: 'For you', icon: <BsHouse /> },
     { path: '/my-library', label: 'My Library', icon: <BsBook /> },
     { path: '/highlights', label: 'Highlights', icon: <BsBookmark /> },
     { path: '/search', label: 'Search', icon: <AiOutlineSearch /> },

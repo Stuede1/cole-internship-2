@@ -1,21 +1,34 @@
 import { useState, useEffect } from 'react';
+import { FaClock, FaStar, FaCrown } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.jsx';
 import TopNavbar from './TopNavbar.jsx';
 import './ForYou.css';
 
 function ForYou() {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [recommendedBooks, setRecommendedBooks] = useState([]);
+  const [suggestedBooks, setSuggestedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingRecommended, setLoadingRecommended] = useState(true);
+  const [loadingSuggested, setLoadingSuggested] = useState(true);
   const [error, setError] = useState(null);
   const [recommendedError, setRecommendedError] = useState(null);
+  const [suggestedError, setSuggestedError] = useState(null);
+
+  const getRandomTime = () => {
+    const minutes = Math.floor(Math.random() * 3) + 3; // Random between 3-5
+    const seconds = Math.floor(Math.random() * 60); // Random seconds 0-59
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         const response = await fetch('https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected');
         const data = await response.json();
+        console.log('Selected books:', data);
         setBooks(data);
         setLoading(false);
       } catch (err) {
@@ -28,6 +41,7 @@ function ForYou() {
       try {
         const response = await fetch('https://us-central1-summaristt.cloudfunctions.net/getBooks?status=recommended');
         const data = await response.json();
+        console.log('Recommended books:', data);
         setRecommendedBooks(data);
         setLoadingRecommended(false);
       } catch (err) {
@@ -36,8 +50,22 @@ function ForYou() {
       }
     };
 
+    const fetchSuggestedBooks = async () => {
+      try {
+        const response = await fetch('https://us-central1-summaristt.cloudfunctions.net/getBooks?status=suggested');
+        const data = await response.json();
+        console.log('Suggested books:', data);
+        setSuggestedBooks(data);
+        setLoadingSuggested(false);
+      } catch (err) {
+        setSuggestedError('Failed to load suggested books');
+        setLoadingSuggested(false);
+      }
+    };
+
     fetchBooks();
     fetchRecommendedBooks();
+    fetchSuggestedBooks();
   }, []);
 
   if (loading) {
@@ -73,8 +101,13 @@ function ForYou() {
           <h2 className="for-you__title">For You</h2>
           <div className="for-you__books-list">
             {books.map((book) => (
-              <div key={book.id} className="book-card-horizontal">
+              <div key={book.id} className="book-card-horizontal" onClick={() => navigate(`/book/${book.id}`)}>
                 <img src={book.imageLink} alt={book.title} className="book-card-horizontal__image" />
+                {book.subscriptionRequired && (
+                  <div className="book-card-horizontal__premium-badge">
+                    Premium
+                  </div>
+                )}
                 <div className="book-card-horizontal__content">
                   <h3 className="book-card-horizontal__title">{book.title}</h3>
                   <p className="book-card-horizontal__subtitle">{book.subTitle}</p>
@@ -93,6 +126,7 @@ function ForYou() {
 
         <div className="row">
           <h2 className="for-you__title">Recommended for you</h2>
+          <p className="for-you__subtitle">We think you like these</p>
           <div className="for-you__recommended-list">
             {loadingRecommended ? (
               <div className="for-you__loading">Loading recommended books...</div>
@@ -100,14 +134,74 @@ function ForYou() {
               <div className="for-you__error">{recommendedError}</div>
             ) : (
               recommendedBooks.slice(0, 5).map((book) => (
-                <div key={book.id} className="book-card-vertical">
+                <div key={book.id} className="book-card-vertical" onClick={() => navigate(`/book/${book.id}`)}>
                   <img src={book.imageLink} alt={book.title} className="book-card-vertical__image" />
+                  {book.subscriptionRequired && (
+                    <div className="book-card-vertical__premium-badge">
+                      Premium
+                    </div>
+                  )}
                   <div className="book-card-vertical__content">
                     <h3 className="book-card-vertical__title">{book.title}</h3>
                     <p className="book-card-vertical__author">By {book.author}</p>
-                    <div className="book-card-vertical__rating">
-                      <span className="book-card-vertical__average-rating">{book.averageRating}</span>
-                      <span className="book-card-vertical__total-rating">({book.totalRating})</span>
+                    <p className="book-card-vertical__description">
+                    {book.subTitle}
+                  </p>
+                    <div className="book-card-vertical__meta">
+                      <div className="book-card-vertical__time-rating">
+                        <span className="book-card-vertical__time">
+                          <FaClock className="book-card-vertical__icon" />
+                          {getRandomTime()}
+                        </span>
+                        <div className="book-card-vertical__rating">
+                          <FaStar className="book-card-vertical__icon" />
+                          <span className="book-card-vertical__average-rating">{book.averageRating}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="row">
+          <h2 className="for-you__title">Suggested for you</h2>
+          <p className="for-you__subtitle">Browse these books</p>
+          <div className="for-you__suggested-list">
+            {loadingSuggested ? (
+              <div className="for-you__loading">Loading suggested books...</div>
+            ) : suggestedError ? (
+              <div className="for-you__error">{suggestedError}</div>
+            ) : suggestedBooks.length === 0 ? (
+              <div className="for-you__loading">No suggested books available</div>
+            ) : (
+              suggestedBooks.slice(0, 5).map((book) => (
+                <div key={book.id} className="book-card-vertical" onClick={() => navigate(`/book/${book.id}`)}>
+                  <img src={book.imageLink} alt={book.title} className="book-card-vertical__image" />
+                  {book.subscriptionRequired && (
+                    <div className="book-card-vertical__premium-badge">
+                      Premium
+                    </div>
+                  )}
+                  <div className="book-card-vertical__content">
+                    <h3 className="book-card-vertical__title">{book.title}</h3>
+                    <p className="book-card-vertical__author">By {book.author}</p>
+                    <p className="book-card-vertical__description">
+                    {book.subTitle}
+                  </p>
+                    <div className="book-card-vertical__meta">
+                      <div className="book-card-vertical__time-rating">
+                        <span className="book-card-vertical__time">
+                          <FaClock className="book-card-vertical__icon" />
+                          {getRandomTime()}
+                        </span>
+                        <div className="book-card-vertical__rating">
+                          <FaStar className="book-card-vertical__icon" />
+                          <span className="book-card-vertical__average-rating">{book.averageRating}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
